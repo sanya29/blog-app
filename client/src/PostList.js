@@ -4,27 +4,53 @@ import CommentCreate from './CommentCreate';
 import CommentList from './CommentList';
 
 export default () => {
+  const [posts, setPosts] = useState({});
 
-    const [posts, setPosts] = useState({});
+  const fetchPosts = async () => {
+    const res = await axios.get('http://localhost:4002/posts');
+    // console.log(res.data)
+    setPosts(res.data);
+  };
 
-    const fetchPosts = async () => {
-        const res = await axios.get('http://localhost:4000/posts'); // axios always returns a res object
-        setPosts(res.data);
-    }
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
-    useEffect( () => {
-        fetchPosts();
-    }, []); // the [] ensures only called once
+  const renderedPosts = Object.values(posts).map(post => {
 
-    const renderedPosts = Object.values(posts).map(post => {
-        return <div className="card" style={{width: '30%', marginBottom: '20px'}} key={post.id}>
-            <div className="card-body">
-                <h3> {post.title}</h3>
-                <CommentList postId={post.id} />
-                <CommentCreate postId={post.id} />
-            </div>
+    return (
+      <div
+        className="card"
+        style={{ width: '30%', marginBottom: '20px' }}
+        key={post.id}
+      >
+        <div className="card-body">
+          <h3>{post.title}</h3>
+          <CommentList comments={post.comments} />
+          <CommentCreate postId={post.id} />
         </div>
-    }); // Object.values(data) returns array of all values inside posts
+      </div>
+    );
 
-    return <div className="d-flex flex-row flex-wrap justify-content-between"> {renderedPosts} </div>
+    // HOW TO: create cards post by post.
+    // return (
+    //   <div
+    //     className="card"
+    //     style={{ width: '30%', marginBottom: '20px' }}
+    //     key={post.id}
+    //   >
+    //     <div className="card-body">
+    //       <h3>{post.title}</h3>
+    //       <CommentList postId={post.id} />
+    //       <CommentCreate postId={post.id} />
+    //     </div>
+    //   </div>
+    // );
+  });
+
+  return (
+    <div className="d-flex flex-row flex-wrap justify-content-between">
+      {renderedPosts}
+    </div>
+  );
 };
